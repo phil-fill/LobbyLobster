@@ -26,117 +26,134 @@ Develop a user-friendly hotel management system that provides essential features
 
 ## 🛠️ Tech Stack
 
-### Frontend & Backend
+### Frontend
 - **[Next.js 14+](https://nextjs.org/)** - React framework with App Router
 - **[TypeScript](https://www.typescriptlang.org/)** - Type-safe development
 - **[Tailwind CSS](https://tailwindcss.com/)** - Utility-first styling
 - **[shadcn/ui](https://ui.shadcn.com/)** - High-quality component library
 
+### Backend
+- **[Python 3.11+](https://www.python.org/)** - Backend language
+- **[FastAPI](https://fastapi.tiangolo.com/)** - Modern, fast web framework
+- **[SQLAlchemy](https://www.sqlalchemy.org/)** - SQL toolkit and ORM
+- **[Pydantic](https://docs.pydantic.dev/)** - Data validation
+
 ### Database
-- **[Prisma ORM](https://www.prisma.io/)** - Type-safe database toolkit
 - **SQLite** (development) → **PostgreSQL** (production)
 
 ### Why This Stack?
 - 🚀 **Fast Development**: Hot reload, type safety, modern tooling
 - 🎨 **Beautiful UI**: Professional components out of the box
-- 📊 **Type-Safe**: From database to frontend
-- 🔧 **Easy Deployment**: Vercel, Railway, or self-hosted
+- 🐍 **Python Backend**: Familiar, powerful, great ecosystem
+- 📊 **Type-Safe**: TypeScript frontend + Pydantic backend
+- 🔧 **Easy Deployment**: Vercel (frontend) + any Python host (backend)
 - 💰 **Cost-Effective**: Open source, minimal hosting costs
 - 📈 **Scalable**: Can grow with the business
+
+## 🎨 Design System
+
+### Color Palette
+- 🦞 **Lobster Red** (`#E63946`) - Primary color, CTAs, highlights
+- 🌊 **Deep Slate** (`#1D3557`) - Headers, text, professional elements
+- 🤍 **Soft Cream** (`#F1FAEE`) - Backgrounds, cards, breathing room
+- **Accent colors**: Success (green), Warning (amber), Error (red-dark)
+
+### Design Principles
+- **Clean & Modern**: Minimal clutter, purposeful whitespace
+- **Color-Coded Status**: Visual at-a-glance understanding
+- **Responsive**: Desktop-first, mobile-friendly
+- **Fast Feedback**: Instant updates, smooth transitions
 
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js 18+ and npm/yarn/pnpm
-- Git
+- **Node.js 18+** and npm/yarn/pnpm
+- **Python 3.11+** and pip
+- **Git**
 
 ### Installation
 
+#### Frontend Setup
 ```bash
-# Clone the repository
-git clone git@github.com:phil-fill/LobbyLobster.git
-cd LobbyLobster
+# Navigate to frontend directory
+cd frontend
 
 # Install dependencies
 npm install
-
-# Set up database
-npx prisma generate
-npx prisma db push
 
 # Run development server
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to view the app.
+Frontend runs on [http://localhost:3000](http://localhost:3000)
+
+#### Backend Setup
+```bash
+# Navigate to backend directory
+cd backend
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Initialize database
+python init_db.py
+
+# Run development server
+uvicorn main:app --reload
+```
+
+Backend API runs on [http://localhost:8000](http://localhost:8000)
+API docs available at [http://localhost:8000/docs](http://localhost:8000/docs)
 
 ## 📁 Project Structure
 
 ```
 LobbyLobster/
-├── app/                  # Next.js App Router
-│   ├── api/             # API routes
-│   ├── (dashboard)/     # Dashboard pages
-│   └── layout.tsx       # Root layout
-├── components/          # React components
-│   ├── ui/             # shadcn/ui components
-│   └── calendar/       # Calendar grid components
-├── lib/                # Utility functions
-│   ├── db.ts           # Database client
-│   └── utils.ts        # Helper functions
-├── prisma/             # Database schema & migrations
-│   └── schema.prisma   # Prisma schema
-├── public/             # Static assets
-└── styles/             # Global styles
+├── frontend/              # Next.js frontend
+│   ├── app/              # Next.js App Router
+│   ├── components/       # React components
+│   │   ├── ui/          # shadcn/ui components
+│   │   └── calendar/    # Calendar grid components
+│   ├── lib/             # Utility functions
+│   └── styles/          # Global styles
+│
+├── backend/              # Python FastAPI backend
+│   ├── main.py          # FastAPI app entry point
+│   ├── models/          # SQLAlchemy models
+│   ├── schemas/         # Pydantic schemas
+│   ├── routes/          # API route handlers
+│   ├── database.py      # Database connection
+│   └── init_db.py       # Database initialization
+│
+└── docs/                # Documentation
 ```
 
 ## 🗄️ Database Schema (Initial)
 
-```prisma
-model Room {
-  id          String        @id @default(cuid())
-  number      String        @unique
-  name        String
-  type        RoomType
-  capacity    Int
-  reservations Reservation[]
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-}
+```python
+# Room model
+- id: UUID (primary key)
+- number: String (unique)
+- name: String
+- type: Enum (SINGLE, DOUBLE, SUITE, FAMILY)
+- capacity: Integer
+- created_at: DateTime
+- updated_at: DateTime
 
-model Reservation {
-  id          String   @id @default(cuid())
-  roomId      String
-  room        Room     @relation(fields: [roomId], references: [id])
-  guestName   String
-  checkIn     DateTime
-  checkOut    DateTime
-  status      ReservationStatus
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-enum RoomType {
-  SINGLE
-  DOUBLE
-  SUITE
-  FAMILY
-}
-
-enum ReservationStatus {
-  CONFIRMED
-  CHECKED_IN
-  CHECKED_OUT
-  CANCELLED
-}
+# Reservation model
+- id: UUID (primary key)
+- room_id: UUID (foreign key)
+- guest_name: String
+- check_in: Date
+- check_out: Date
+- status: Enum (CONFIRMED, CHECKED_IN, CHECKED_OUT, CANCELLED)
+- created_at: DateTime
+- updated_at: DateTime
 ```
-
-## 🎨 UI/UX Design Principles
-
-- **Simple & Intuitive**: Hotel staff should be able to use it without training
-- **Visual First**: Color-coded statuses, drag-and-drop reservations
-- **Responsive**: Works on desktop, tablet, and mobile
-- **Fast**: Instant feedback, optimistic updates
 
 ## 📝 Development Workflow
 
@@ -166,11 +183,12 @@ Private - All rights reserved
 
 ## 🎯 Roadmap
 
-- [ ] **Week 1-2**: Project setup, basic calendar UI
-- [ ] **Week 3-4**: Database schema, API routes
-- [ ] **Week 5-6**: Reservation creation & editing
+- [x] **Week 1**: Project setup, tech stack decision, documentation
+- [ ] **Week 2**: Frontend scaffold, color system, first view
+- [ ] **Week 3**: Backend API, database models
+- [ ] **Week 4**: Calendar UI component
+- [ ] **Week 5-6**: Reservation CRUD operations
 - [ ] **Week 7-8**: Polish, testing, first deployment
-- [ ] **Month 3+**: Guest management, invoicing, reporting
 
 ## 📞 Support
 
