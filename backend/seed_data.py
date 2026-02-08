@@ -6,16 +6,35 @@ from database import SessionLocal, init_db
 from models import Room, RoomType, Reservation, ReservationStatus
 
 def seed_rooms(db):
-    """Create sample rooms"""
+    """Create 20 sample rooms"""
     rooms = [
+        # Floor 1 - Singles (101-105)
         Room(number="101", name="Cozy Single", room_type=RoomType.SINGLE, capacity=1, floor=1),
         Room(number="102", name="Comfort Single", room_type=RoomType.SINGLE, capacity=1, floor=1),
+        Room(number="103", name="Budget Single", room_type=RoomType.SINGLE, capacity=1, floor=1),
+        Room(number="104", name="Standard Single", room_type=RoomType.SINGLE, capacity=1, floor=1),
+        Room(number="105", name="Economy Single", room_type=RoomType.SINGLE, capacity=1, floor=1),
+        
+        # Floor 2 - Doubles (201-208)
         Room(number="201", name="Deluxe Double", room_type=RoomType.DOUBLE, capacity=2, floor=2),
         Room(number="202", name="Premium Double", room_type=RoomType.DOUBLE, capacity=2, floor=2),
         Room(number="203", name="Garden View Double", room_type=RoomType.DOUBLE, capacity=2, floor=2),
+        Room(number="204", name="Street View Double", room_type=RoomType.DOUBLE, capacity=2, floor=2),
+        Room(number="205", name="Courtyard Double", room_type=RoomType.DOUBLE, capacity=2, floor=2),
+        Room(number="206", name="Standard Double", room_type=RoomType.DOUBLE, capacity=2, floor=2),
+        Room(number="207", name="Comfort Double", room_type=RoomType.DOUBLE, capacity=2, floor=2),
+        Room(number="208", name="Classic Double", room_type=RoomType.DOUBLE, capacity=2, floor=2),
+        
+        # Floor 3 - Suites (301-304)
         Room(number="301", name="Executive Suite", room_type=RoomType.SUITE, capacity=4, floor=3),
         Room(number="302", name="Honeymoon Suite", room_type=RoomType.SUITE, capacity=2, floor=3),
-        Room(number="401", name="Family Room", room_type=RoomType.FAMILY, capacity=5, floor=4),
+        Room(number="303", name="Business Suite", room_type=RoomType.SUITE, capacity=3, floor=3),
+        Room(number="304", name="Junior Suite", room_type=RoomType.SUITE, capacity=3, floor=3),
+        
+        # Floor 4 - Family Rooms (401-403)
+        Room(number="401", name="Large Family Room", room_type=RoomType.FAMILY, capacity=5, floor=4),
+        Room(number="402", name="Family Room", room_type=RoomType.FAMILY, capacity=4, floor=4),
+        Room(number="403", name="XL Family Room", room_type=RoomType.FAMILY, capacity=6, floor=4),
     ]
     
     for room in rooms:

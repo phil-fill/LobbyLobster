@@ -98,12 +98,8 @@ export default function DashboardPage() {
               Calendar
             </a>
             <a
-              href="#"
+              href="/dashboard/rooms"
               className="hover:text-[#E63946] transition-colors"
-              onClick={(e) => {
-                e.preventDefault();
-                alert('Rooms page coming soon!');
-              }}
             >
               Rooms
             </a>
@@ -208,12 +204,12 @@ export default function DashboardPage() {
             <p className="text-deep-slate/70 mb-6">
               Add your first room to start managing reservations
             </p>
-            <button
-              onClick={() => alert('Room creation UI coming soon!')}
-              className="px-6 py-3 bg-[#E63946] text-white rounded-lg hover:bg-[#D32F40] transition-colors font-semibold"
+            <a
+              href="/dashboard/rooms"
+              className="inline-block px-6 py-3 bg-[#E63946] text-white rounded-lg hover:bg-[#D32F40] transition-colors font-semibold"
             >
-              Add Room
-            </button>
+              Go to Rooms
+            </a>
           </div>
         ) : (
           <CalendarGrid
