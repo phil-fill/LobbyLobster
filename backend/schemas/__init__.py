@@ -1,2 +1,21 @@
 # Pydantic schemas package
-# Import all schemas here for easy access
+from .room import RoomBase, RoomCreate, RoomUpdate, RoomResponse
+from .reservation import (
+    ReservationBase,
+    ReservationCreate,
+    ReservationUpdate,
+    ReservationResponse,
+    ReservationWithRoom,
+)
+
+__all__ = [
+    "RoomBase",
+    "RoomCreate",
+    "RoomUpdate",
+    "RoomResponse",
+    "ReservationBase",
+    "ReservationCreate",
+    "ReservationUpdate",
+    "ReservationResponse",
+    "ReservationWithRoom",
+]

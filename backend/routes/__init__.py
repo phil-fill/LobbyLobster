@@ -1,2 +1,4 @@
 # Routes package
-# Import all route modules here
+from . import rooms, reservations
+
+__all__ = ["rooms", "reservations"]

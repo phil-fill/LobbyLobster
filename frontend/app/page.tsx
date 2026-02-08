@@ -36,9 +36,12 @@ export default function Home() {
             systems and hello to intuitive, cost-effective administration.
           </p>
           <div className="flex gap-4 justify-center">
-            <button className="bg-[#E63946] hover:bg-[#D32F40] text-white px-8 py-3 rounded-lg font-semibold transition-all shadow-lg hover:shadow-xl">
-              Get Started
-            </button>
+            <a
+              href="/dashboard"
+              className="bg-[#E63946] hover:bg-[#D32F40] text-white px-8 py-3 rounded-lg font-semibold transition-all shadow-lg hover:shadow-xl inline-block"
+            >
+              Open Dashboard
+            </a>
             <button className="bg-white border-2 border-deep-slate text-deep-slate px-8 py-3 rounded-lg font-semibold hover:bg-deep-slate hover:text-white transition-all">
               Learn More
             </button>
