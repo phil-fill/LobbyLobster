@@ -150,6 +150,20 @@ export async function fetchGuests(): Promise<Guest[]> {
   return response.json();
 }
 
+export async function updateGuestInfo(oldName: string, updates: Partial<Guest>): Promise<any> {
+  const response = await fetch(`${API_BASE_URL}/api/guests/update`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      old_guest_name: oldName,
+      new_guest_name: updates.guest_name,
+      ...updates,
+    }),
+  });
+  if (!response.ok) throw new Error('Failed to update guest info');
+  return response.json();
+}
+
 export async function searchGuests(query: string): Promise<Array<Partial<Reservation>>> {
   const response = await fetch(`${API_BASE_URL}/api/reservations/search-guests?query=${encodeURIComponent(query)}`);
   if (!response.ok) throw new Error('Failed to search guests');

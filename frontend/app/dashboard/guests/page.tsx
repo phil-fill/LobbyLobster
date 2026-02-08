@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import GuestDetailModal from '@/components/guests/GuestDetailModal';
 import { fetchGuests, Guest } from '@/lib/api';
 import { format } from 'date-fns';
 
@@ -11,6 +12,7 @@ export default function GuestsPage() {
   const [error, setError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedGuest, setSelectedGuest] = useState<Guest | null>(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
 
   useEffect(() => {
     loadGuests();
@@ -35,6 +37,20 @@ export default function GuestsPage() {
       guest.guest_email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       guest.guest_company?.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const handleGuestClick = (guest: Guest) => {
+    setSelectedGuest(guest);
+    setShowDetailModal(true);
+  };
+
+  const handleModalClose = () => {
+    setShowDetailModal(false);
+    setSelectedGuest(null);
+  };
+
+  const handleGuestUpdate = () => {
+    loadGuests();
+  };
 
   return (
     <div className="min-h-screen bg-soft-cream">
@@ -146,8 +162,7 @@ export default function GuestsPage() {
             {filteredGuests.map((guest, index) => (
               <div
                 key={index}
-                className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow border-l-4 border-[#E63946] cursor-pointer"
-                onClick={() => setSelectedGuest(selectedGuest === guest ? null : guest)}
+                className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow border-l-4 border-[#E63946]"
               >
                 {/* Guest Header */}
                 <div className="flex items-start justify-between mb-4">
@@ -197,8 +212,18 @@ export default function GuestsPage() {
                   </div>
                 </div>
 
-                {/* Reservation History (expandable) */}
-                {selectedGuest === guest && (
+                {/* Action Button */}
+                <div className="mt-4 pt-4 border-t">
+                  <button
+                    onClick={() => handleGuestClick(guest)}
+                    className="w-full px-4 py-2 bg-[#E63946] text-white rounded-lg hover:bg-[#D32F40] transition-colors font-semibold text-sm"
+                  >
+                    View Full Profile & Edit
+                  </button>
+                </div>
+
+                {/* Reservation History Preview */}
+                {selectedGuest === guest && false && (
                   <div className="mt-4 space-y-2">
                     <div className="text-sm font-semibold text-deep-slate mb-2">
                       Reservation History
@@ -235,16 +260,20 @@ export default function GuestsPage() {
                     ))}
                   </div>
                 )}
-
-                {/* Click to expand hint */}
-                <div className="text-center text-xs text-deep-slate/40 mt-2">
-                  {selectedGuest === guest ? '▲ Click to collapse' : '▼ Click to see history'}
-                </div>
               </div>
             ))}
           </div>
         )}
       </main>
+
+      {/* Guest Detail Modal */}
+      {showDetailModal && selectedGuest && (
+        <GuestDetailModal
+          guest={selectedGuest}
+          onClose={handleModalClose}
+          onUpdate={handleGuestUpdate}
+        />
+      )}
     </div>
   );
 }
