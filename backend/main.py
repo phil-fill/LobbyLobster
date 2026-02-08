@@ -1,13 +1,27 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from database import init_db
 from routes import rooms, reservations
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Lifespan event handler for startup/shutdown"""
+    # Startup
+    init_db()
+    print("🦞 LobbyLobster API started successfully!")
+    yield
+    # Shutdown (if needed in the future)
+    print("👋 LobbyLobster API shutting down...")
+
+
 app = FastAPI(
     title="LobbyLobster API",
     description="Modern hotel management system backend",
-    version="0.1.0"
+    version="0.1.0",
+    lifespan=lifespan
 )
 
 # CORS middleware for frontend communication
@@ -19,11 +33,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.on_event("startup")
-async def startup_event():
-    """Initialize database on startup"""
-    init_db()
-    print("🦞 LobbyLobster API started successfully!")
 
 @app.get("/")
 async def root():
@@ -39,6 +48,7 @@ async def root():
         }
     }
 
+
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""
@@ -47,10 +57,12 @@ async def health_check():
         "service": "LobbyLobster API"
     }
 
+
 # Register routes
 app.include_router(rooms.router, prefix="/api/rooms", tags=["rooms"])
 app.include_router(reservations.router, prefix="/api/reservations", tags=["reservations"])
 
+
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
