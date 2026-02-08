@@ -33,9 +33,24 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+*.egg-info/
+dist/
+build/
+
 # Database
 prisma/*.db
 prisma/*.db-journal
+*.db
+*.db-journal
 
 # IDE
 .vscode/
