@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from database import init_db
-from routes import rooms, reservations, guests
+from routes import rooms, reservations, guests, invoices
 
 
 @asynccontextmanager
@@ -62,6 +62,7 @@ async def health_check():
 app.include_router(rooms.router, prefix="/api/rooms", tags=["rooms"])
 app.include_router(reservations.router, prefix="/api/reservations", tags=["reservations"])
 app.include_router(guests.router, prefix="/api/guests", tags=["guests"])
+app.include_router(invoices.router, prefix="/api/invoices", tags=["invoices"])
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from sqlalchemy import and_, or_
+from sqlalchemy import and_, or_, func
 from typing import List, Optional
 from datetime import date
 
@@ -9,6 +9,72 @@ from models import Reservation, Room
 from schemas import ReservationCreate, ReservationUpdate, ReservationResponse, ReservationWithRoom
 
 router = APIRouter()
+
+
+@router.get("/search-guests")
+async def search_guests(
+    query: str,
+    limit: int = 10,
+    db: Session = Depends(get_db)
+):
+    """Search for guests by name for autocomplete"""
+    if not query or len(query) < 2:
+        return []
+    
+    # Search for unique guests matching the query
+    results = (
+        db.query(
+            Reservation.guest_name,
+            Reservation.guest_email,
+            Reservation.guest_phone,
+            Reservation.guest_address,
+            Reservation.guest_city,
+            Reservation.guest_postal_code,
+            Reservation.guest_country,
+            Reservation.guest_company,
+            Reservation.company_address,
+            Reservation.company_city,
+            Reservation.company_postal_code,
+            Reservation.company_country,
+            func.max(Reservation.created_at).label('last_visit')
+        )
+        .filter(Reservation.guest_name.ilike(f"%{query}%"))
+        .group_by(
+            Reservation.guest_name,
+            Reservation.guest_email,
+            Reservation.guest_phone,
+            Reservation.guest_address,
+            Reservation.guest_city,
+            Reservation.guest_postal_code,
+            Reservation.guest_country,
+            Reservation.guest_company,
+            Reservation.company_address,
+            Reservation.company_city,
+            Reservation.company_postal_code,
+            Reservation.company_country
+        )
+        .order_by(func.max(Reservation.created_at).desc())
+        .limit(limit)
+        .all()
+    )
+    
+    return [
+        {
+            "guest_name": r.guest_name,
+            "guest_email": r.guest_email,
+            "guest_phone": r.guest_phone,
+            "guest_address": r.guest_address,
+            "guest_city": r.guest_city,
+            "guest_postal_code": r.guest_postal_code,
+            "guest_country": r.guest_country,
+            "guest_company": r.guest_company,
+            "company_address": r.company_address,
+            "company_city": r.company_city,
+            "company_postal_code": r.company_postal_code,
+            "company_country": r.company_country,
+        }
+        for r in results
+    ]
 
 
 def check_room_availability(
@@ -147,8 +213,14 @@ async def create_reservation(
             detail=f"Room {room.number} is not available for the selected dates"
         )
     
+    # Calculate total price if price_per_night is provided
+    data_dict = reservation_data.model_dump()
+    if data_dict.get('price_per_night'):
+        nights = (reservation_data.check_out - reservation_data.check_in).days
+        data_dict['total_price'] = data_dict['price_per_night'] * nights
+    
     # Create reservation
-    reservation = Reservation(**reservation_data.model_dump())
+    reservation = Reservation(**data_dict)
     db.add(reservation)
     db.commit()
     db.refresh(reservation)
