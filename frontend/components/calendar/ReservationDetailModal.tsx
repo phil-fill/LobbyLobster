@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Reservation, updateReservation, deleteReservation, fetchRooms, Room } from '@/lib/api';
+import { Reservation, updateReservation, deleteReservation, fetchRooms, Room, getInvoicePdfUrl } from '@/lib/api';
 import { formatDate } from '@/lib/utils';
 import { format } from 'date-fns';
 
@@ -28,10 +28,21 @@ export default function ReservationDetailModal({
     guest_name: '',
     guest_email: '',
     guest_phone: '',
+    guest_address: '',
+    guest_city: '',
+    guest_postal_code: '',
+    guest_country: '',
     guest_company: '',
+    company_address: '',
+    company_city: '',
+    company_postal_code: '',
+    company_country: '',
     check_in: '',
     check_out: '',
     status: 'CONFIRMED' as 'CONFIRMED' | 'CHECKED_IN' | 'CHECKED_OUT' | 'CANCELLED',
+    price_per_night: 0,
+    breakfast_included: false,
+    payment_method: '' as '' | 'CASH' | 'DEBIT_CARD' | 'CREDIT_CARD' | 'INVOICE',
     notes: '',
   });
 
@@ -54,10 +65,21 @@ export default function ReservationDetailModal({
         guest_name: resData.guest_name,
         guest_email: resData.guest_email || '',
         guest_phone: resData.guest_phone || '',
+        guest_address: resData.guest_address || '',
+        guest_city: resData.guest_city || '',
+        guest_postal_code: resData.guest_postal_code || '',
+        guest_country: resData.guest_country || '',
         guest_company: resData.guest_company || '',
+        company_address: resData.company_address || '',
+        company_city: resData.company_city || '',
+        company_postal_code: resData.company_postal_code || '',
+        company_country: resData.company_country || '',
         check_in: resData.check_in,
         check_out: resData.check_out,
         status: resData.status,
+        price_per_night: resData.price_per_night || 0,
+        breakfast_included: resData.breakfast_included || false,
+        payment_method: resData.payment_method || '',
         notes: resData.notes || '',
       });
     } catch (err) {
@@ -138,12 +160,24 @@ export default function ReservationDetailModal({
           <h2 className="text-2xl font-bold text-deep-slate">
             Reservation Details
           </h2>
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 text-2xl font-bold"
-          >
-            ×
-          </button>
+          <div className="flex items-center gap-3">
+            {!isEditing && (
+              <a
+                href={getInvoicePdfUrl(reservationId)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-2 bg-[#457B9D] text-white rounded-lg hover:bg-[#3A6A85] transition-colors font-semibold text-sm flex items-center gap-2"
+              >
+                📄 Download Invoice
+              </a>
+            )}
+            <button
+              onClick={onClose}
+              className="text-gray-500 hover:text-gray-700 text-2xl font-bold"
+            >
+              ×
+            </button>
+          </div>
         </div>
 
         {error && (
@@ -153,7 +187,7 @@ export default function ReservationDetailModal({
         )}
 
         {/* Content */}
-        <div className="space-y-6">
+        <div className="space-y-6 max-h-[70vh] overflow-y-auto pr-2">
           {/* Room Info */}
           <div className="bg-soft-cream p-4 rounded-lg">
             <div className="flex items-center justify-between">
@@ -202,7 +236,7 @@ export default function ReservationDetailModal({
           {/* Guest Information */}
           <div>
             <h3 className="text-lg font-bold text-deep-slate mb-3">Guest Information</h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-3">
               <div>
                 <label className="block text-sm font-medium text-deep-slate/70 mb-1">Name</label>
                 {isEditing ? (
@@ -216,48 +250,147 @@ export default function ReservationDetailModal({
                   <div className="text-deep-slate font-medium">{reservation.guest_name}</div>
                 )}
               </div>
-              <div>
-                <label className="block text-sm font-medium text-deep-slate/70 mb-1">Company</label>
-                {isEditing ? (
-                  <input
-                    type="text"
-                    value={formData.guest_company}
-                    onChange={(e) => setFormData({ ...formData, guest_company: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#E63946]"
-                    placeholder="Optional"
-                  />
-                ) : (
-                  <div className="text-deep-slate">{reservation.guest_company || '-'}</div>
-                )}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-deep-slate/70 mb-1">Email</label>
+                  {isEditing ? (
+                    <input
+                      type="email"
+                      value={formData.guest_email}
+                      onChange={(e) => setFormData({ ...formData, guest_email: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#E63946]"
+                    />
+                  ) : (
+                    <div className="text-deep-slate">{reservation.guest_email || '-'}</div>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-deep-slate/70 mb-1">Phone</label>
+                  {isEditing ? (
+                    <input
+                      type="tel"
+                      value={formData.guest_phone}
+                      onChange={(e) => setFormData({ ...formData, guest_phone: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#E63946]"
+                    />
+                  ) : (
+                    <div className="text-deep-slate">{reservation.guest_phone || '-'}</div>
+                  )}
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-deep-slate/70 mb-1">Email</label>
+              {/* Guest Address */}
+              <div className="pt-2 border-t">
+                <label className="block text-sm font-medium text-deep-slate/70 mb-2">Address</label>
                 {isEditing ? (
-                  <input
-                    type="email"
-                    value={formData.guest_email}
-                    onChange={(e) => setFormData({ ...formData, guest_email: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#E63946]"
-                  />
+                  <div className="space-y-2">
+                    <input
+                      type="text"
+                      value={formData.guest_address}
+                      onChange={(e) => setFormData({ ...formData, guest_address: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#E63946]"
+                      placeholder="Street"
+                    />
+                    <div className="grid grid-cols-2 gap-2">
+                      <input
+                        type="text"
+                        value={formData.guest_postal_code}
+                        onChange={(e) => setFormData({ ...formData, guest_postal_code: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#E63946]"
+                        placeholder="Postal"
+                      />
+                      <input
+                        type="text"
+                        value={formData.guest_city}
+                        onChange={(e) => setFormData({ ...formData, guest_city: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#E63946]"
+                        placeholder="City"
+                      />
+                    </div>
+                    <input
+                      type="text"
+                      value={formData.guest_country}
+                      onChange={(e) => setFormData({ ...formData, guest_country: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#E63946]"
+                      placeholder="Country"
+                    />
+                  </div>
                 ) : (
-                  <div className="text-deep-slate">{reservation.guest_email || '-'}</div>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-deep-slate/70 mb-1">Phone</label>
-                {isEditing ? (
-                  <input
-                    type="tel"
-                    value={formData.guest_phone}
-                    onChange={(e) => setFormData({ ...formData, guest_phone: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#E63946]"
-                  />
-                ) : (
-                  <div className="text-deep-slate">{reservation.guest_phone || '-'}</div>
+                  <div className="text-deep-slate text-sm">
+                    {[reservation.guest_address, 
+                      [reservation.guest_postal_code, reservation.guest_city].filter(Boolean).join(' '),
+                      reservation.guest_country
+                    ].filter(Boolean).join(', ') || '-'}
+                  </div>
                 )}
               </div>
             </div>
           </div>
+
+          {/* Company Information */}
+          {(isEditing || reservation.guest_company) && (
+            <div className="border-t pt-4">
+              <h3 className="text-lg font-bold text-deep-slate mb-3">Company Information</h3>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-sm font-medium text-deep-slate/70 mb-1">Company Name</label>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={formData.guest_company}
+                      onChange={(e) => setFormData({ ...formData, guest_company: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#E63946]"
+                    />
+                  ) : (
+                    <div className="text-deep-slate">{reservation.guest_company || '-'}</div>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-deep-slate/70 mb-2">Company Address</label>
+                  {isEditing ? (
+                    <div className="space-y-2">
+                      <input
+                        type="text"
+                        value={formData.company_address}
+                        onChange={(e) => setFormData({ ...formData, company_address: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#E63946]"
+                        placeholder="Street"
+                      />
+                      <div className="grid grid-cols-2 gap-2">
+                        <input
+                          type="text"
+                          value={formData.company_postal_code}
+                          onChange={(e) => setFormData({ ...formData, company_postal_code: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#E63946]"
+                          placeholder="Postal"
+                        />
+                        <input
+                          type="text"
+                          value={formData.company_city}
+                          onChange={(e) => setFormData({ ...formData, company_city: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#E63946]"
+                          placeholder="City"
+                        />
+                      </div>
+                      <input
+                        type="text"
+                        value={formData.company_country}
+                        onChange={(e) => setFormData({ ...formData, company_country: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#E63946]"
+                        placeholder="Country"
+                      />
+                    </div>
+                  ) : (
+                    <div className="text-deep-slate text-sm">
+                      {[reservation.company_address,
+                        [reservation.company_postal_code, reservation.company_city].filter(Boolean).join(' '),
+                        reservation.company_country
+                      ].filter(Boolean).join(', ') || '-'}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Stay Information */}
           <div>
@@ -297,6 +430,82 @@ export default function ReservationDetailModal({
                 <label className="block text-sm font-medium text-deep-slate/70 mb-1">Nights</label>
                 <div className="text-deep-slate font-medium">{nights}</div>
               </div>
+            </div>
+          </div>
+
+          {/* Pricing */}
+          <div className="border-t pt-4">
+            <h3 className="text-lg font-bold text-deep-slate mb-3">Pricing & Payment</h3>
+            <div className="grid grid-cols-2 gap-4 mb-3">
+              <div>
+                <label className="block text-sm font-medium text-deep-slate/70 mb-1">Price per Night</label>
+                {isEditing ? (
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={formData.price_per_night}
+                    onChange={(e) => setFormData({ ...formData, price_per_night: parseFloat(e.target.value) || 0 })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#E63946]"
+                  />
+                ) : (
+                  <div className="text-deep-slate font-medium">
+                    {reservation.price_per_night ? `€${reservation.price_per_night.toFixed(2)}` : '-'}
+                  </div>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-deep-slate/70 mb-1">Total Price</label>
+                <div className="text-deep-slate font-bold text-lg text-[#E63946]">
+                  {reservation.total_price ? `€${reservation.total_price.toFixed(2)}` : 
+                   reservation.price_per_night ? `€${(reservation.price_per_night * nights).toFixed(2)}` : '-'}
+                </div>
+              </div>
+            </div>
+            <div className="mb-3">
+              {isEditing ? (
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={formData.breakfast_included}
+                    onChange={(e) => setFormData({ ...formData, breakfast_included: e.target.checked })}
+                    className="w-4 h-4"
+                  />
+                  <span className="text-sm text-deep-slate">Breakfast included</span>
+                </label>
+              ) : (
+                reservation.breakfast_included && (
+                  <div className="text-sm text-green-700 bg-green-50 px-3 py-2 rounded-lg inline-block">
+                    ✓ Breakfast included
+                  </div>
+                )
+              )}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-deep-slate/70 mb-1">Payment Method</label>
+              {isEditing ? (
+                <select
+                  value={formData.payment_method}
+                  onChange={(e) => setFormData({ ...formData, payment_method: e.target.value as any })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#E63946]"
+                >
+                  <option value="">Not specified</option>
+                  <option value="CASH">Cash</option>
+                  <option value="DEBIT_CARD">Debit Card</option>
+                  <option value="CREDIT_CARD">Credit Card</option>
+                  <option value="INVOICE">Invoice (by post)</option>
+                </select>
+              ) : (
+                <div className="text-deep-slate">
+                  {reservation.payment_method ? 
+                    {
+                      'CASH': '💵 Cash',
+                      'DEBIT_CARD': '💳 Debit Card',
+                      'CREDIT_CARD': '💳 Credit Card',
+                      'INVOICE': '📄 Invoice (by post)'
+                    }[reservation.payment_method] : '-'}
+                </div>
+              )}
             </div>
           </div>
 

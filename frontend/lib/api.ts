@@ -20,10 +20,22 @@ export interface Reservation {
   guest_name: string;
   guest_email?: string;
   guest_phone?: string;
+  guest_address?: string;
+  guest_city?: string;
+  guest_postal_code?: string;
+  guest_country?: string;
   guest_company?: string;
+  company_address?: string;
+  company_city?: string;
+  company_postal_code?: string;
+  company_country?: string;
   check_in: string;
   check_out: string;
   status: 'CONFIRMED' | 'CHECKED_IN' | 'CHECKED_OUT' | 'CANCELLED';
+  price_per_night?: number;
+  breakfast_included?: boolean;
+  total_price?: number;
+  payment_method?: 'CASH' | 'DEBIT_CARD' | 'CREDIT_CARD' | 'INVOICE';
   notes?: string;
   created_at: string;
   updated_at: string;
@@ -136,4 +148,14 @@ export async function fetchGuests(): Promise<Guest[]> {
   const response = await fetch(`${API_BASE_URL}/api/guests`);
   if (!response.ok) throw new Error('Failed to fetch guests');
   return response.json();
+}
+
+export async function searchGuests(query: string): Promise<Array<Partial<Reservation>>> {
+  const response = await fetch(`${API_BASE_URL}/api/reservations/search-guests?query=${encodeURIComponent(query)}`);
+  if (!response.ok) throw new Error('Failed to search guests');
+  return response.json();
+}
+
+export function getInvoicePdfUrl(reservationId: string): string {
+  return `${API_BASE_URL}/api/invoices/${reservationId}/invoice`;
 }
