@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import CalendarGrid from '@/components/calendar/CalendarGrid';
 import ReservationModal from '@/components/calendar/ReservationModal';
+import ReservationDetailModal from '@/components/calendar/ReservationDetailModal';
 import {
   fetchRooms,
   fetchCalendarReservations,
@@ -27,6 +28,8 @@ export default function DashboardPage() {
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [selectedReservationId, setSelectedReservationId] = useState<string | null>(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -69,6 +72,20 @@ export default function DashboardPage() {
     loadData(); // Reload calendar
   };
 
+  const handleReservationClick = (reservationId: string) => {
+    setSelectedReservationId(reservationId);
+    setShowDetailModal(true);
+  };
+
+  const handleDetailModalClose = () => {
+    setShowDetailModal(false);
+    setSelectedReservationId(null);
+  };
+
+  const handleReservationUpdate = () => {
+    loadData();
+  };
+
   const goToPreviousPeriod = () => {
     setCurrentDate(addDays(currentDate, -daysToShow));
   };
@@ -79,6 +96,12 @@ export default function DashboardPage() {
 
   const goToToday = () => {
     setCurrentDate(new Date());
+  };
+
+  const handleDateJump = (dateStr: string) => {
+    if (dateStr) {
+      setCurrentDate(new Date(dateStr));
+    }
   };
 
   return (
@@ -102,6 +125,12 @@ export default function DashboardPage() {
               className="hover:text-[#E63946] transition-colors"
             >
               Rooms
+            </a>
+            <a
+              href="/dashboard/guests"
+              className="hover:text-[#E63946] transition-colors"
+            >
+              Guests
             </a>
             <a href="/" className="hover:text-[#E63946] transition-colors">
               Home
@@ -158,7 +187,20 @@ export default function DashboardPage() {
               <option value={14}>14 days</option>
               <option value={21}>21 days</option>
               <option value={30}>30 days</option>
+              <option value={60}>60 days</option>
+              <option value={90}>90 days</option>
             </select>
+
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-deep-slate whitespace-nowrap">
+                Jump to:
+              </label>
+              <input
+                type="date"
+                onChange={(e) => handleDateJump(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#E63946]"
+              />
+            </div>
           </div>
         </div>
 
@@ -218,17 +260,27 @@ export default function DashboardPage() {
             startDate={currentDate}
             days={daysToShow}
             onCellClick={handleCellClick}
+            onReservationClick={handleReservationClick}
           />
         )}
       </main>
 
-      {/* Reservation Modal */}
+      {/* Reservation Create Modal */}
       {showModal && (
         <ReservationModal
           room={selectedRoom}
           date={selectedDate}
           onClose={handleModalClose}
           onSuccess={handleReservationSuccess}
+        />
+      )}
+
+      {/* Reservation Detail Modal */}
+      {showDetailModal && selectedReservationId && (
+        <ReservationDetailModal
+          reservationId={selectedReservationId}
+          onClose={handleDetailModalClose}
+          onUpdate={handleReservationUpdate}
         />
       )}
     </div>

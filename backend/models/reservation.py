@@ -24,6 +24,7 @@ class Reservation(Base):
     guest_name = Column(String, nullable=False)
     guest_email = Column(String, nullable=True)
     guest_phone = Column(String, nullable=True)
+    guest_company = Column(String, nullable=True)
     check_in = Column(Date, nullable=False, index=True)
     check_out = Column(Date, nullable=False, index=True)
     status = Column(SQLEnum(ReservationStatus), nullable=False, default=ReservationStatus.CONFIRMED)

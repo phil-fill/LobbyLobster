@@ -11,6 +11,7 @@ class ReservationBase(BaseModel):
     guest_name: str = Field(..., min_length=1, description="Guest name")
     guest_email: Optional[str] = Field(None, description="Guest email")
     guest_phone: Optional[str] = Field(None, description="Guest phone number")
+    guest_company: Optional[str] = Field(None, description="Guest company")
     check_in: date = Field(..., description="Check-in date")
     check_out: date = Field(..., description="Check-out date")
     notes: Optional[str] = Field(None, description="Special requests or notes")
@@ -36,6 +37,7 @@ class ReservationUpdate(BaseModel):
     guest_name: Optional[str] = Field(None, min_length=1)
     guest_email: Optional[str] = None
     guest_phone: Optional[str] = None
+    guest_company: Optional[str] = None
     check_in: Optional[date] = None
     check_out: Optional[date] = None
     status: Optional[ReservationStatus] = None

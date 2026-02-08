@@ -72,6 +72,12 @@ export default function RoomsPage() {
             >
               Rooms
             </Link>
+            <Link
+              href="/dashboard/guests"
+              className="hover:text-[#E63946] transition-colors"
+            >
+              Guests
+            </Link>
             <Link href="/" className="hover:text-[#E63946] transition-colors">
               Home
             </Link>

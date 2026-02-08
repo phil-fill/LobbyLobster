@@ -21,6 +21,7 @@ export default function ReservationModal({
     guest_name: '',
     guest_email: '',
     guest_phone: '',
+    guest_company: '',
     check_in: date ? formatDate(date) : '',
     check_out: date ? formatDate(new Date(date.getTime() + 86400000)) : '',
     notes: '',
@@ -109,19 +110,35 @@ export default function ReservationModal({
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-deep-slate mb-1">
-              Phone
-            </label>
-            <input
-              type="tel"
-              value={formData.guest_phone}
-              onChange={(e) =>
-                setFormData({ ...formData, guest_phone: e.target.value })
-              }
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#E63946]"
-              placeholder="+1 234 567 8900"
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-deep-slate mb-1">
+                Phone
+              </label>
+              <input
+                type="tel"
+                value={formData.guest_phone}
+                onChange={(e) =>
+                  setFormData({ ...formData, guest_phone: e.target.value })
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#E63946]"
+                placeholder="+1 234 567 8900"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-deep-slate mb-1">
+                Company
+              </label>
+              <input
+                type="text"
+                value={formData.guest_company}
+                onChange={(e) =>
+                  setFormData({ ...formData, guest_company: e.target.value })
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#E63946]"
+                placeholder="Company name"
+              />
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">

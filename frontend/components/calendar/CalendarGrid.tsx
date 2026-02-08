@@ -11,6 +11,7 @@ interface CalendarGridProps {
   startDate: Date;
   days: number;
   onCellClick?: (room: Room, date: Date) => void;
+  onReservationClick?: (reservationId: string) => void;
 }
 
 export default function CalendarGrid({
@@ -19,6 +20,7 @@ export default function CalendarGrid({
   startDate,
   days,
   onCellClick,
+  onReservationClick,
 }: CalendarGridProps) {
   const dates = getDateRange(startDate, addDays(startDate, days - 1));
 
@@ -35,8 +37,10 @@ export default function CalendarGrid({
     });
   });
 
-  const handleCellClick = (room: Room, date: Date) => {
-    if (onCellClick) {
+  const handleCellClick = (room: Room, date: Date, reservation?: Reservation) => {
+    if (reservation && onReservationClick) {
+      onReservationClick(reservation.id);
+    } else if (!reservation && onCellClick) {
       onCellClick(room, date);
     }
   };
@@ -85,9 +89,9 @@ export default function CalendarGrid({
                     key={formatDate(date)}
                     className={`
                       border-b border-r border-gray-200 p-0 cursor-pointer
-                      hover:bg-[#E63946]/10 transition-colors
+                      ${reservation ? 'hover:opacity-80' : 'hover:bg-[#E63946]/10'} transition-all
                     `}
-                    onClick={() => handleCellClick(room, date)}
+                    onClick={() => handleCellClick(room, date, reservation)}
                   >
                     {reservation ? (
                       <div
@@ -103,7 +107,7 @@ export default function CalendarGrid({
                               : 'bg-gray-300 text-gray-700'
                           }
                         `}
-                        title={`${reservation.guest_name} (${reservation.status})`}
+                        title={`${reservation.guest_name} (${reservation.status}) - Click for details`}
                       >
                         {isStart && (
                           <span className="text-xs font-medium truncate px-2">

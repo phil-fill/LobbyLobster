@@ -20,6 +20,7 @@ export interface Reservation {
   guest_name: string;
   guest_email?: string;
   guest_phone?: string;
+  guest_company?: string;
   check_in: string;
   check_out: string;
   status: 'CONFIRMED' | 'CHECKED_IN' | 'CHECKED_OUT' | 'CANCELLED';
@@ -28,6 +29,26 @@ export interface Reservation {
   updated_at: string;
   room_number?: string;
   room_name?: string;
+}
+
+export interface Guest {
+  guest_name: string;
+  guest_email?: string;
+  guest_phone?: string;
+  guest_company?: string;
+  total_stays: number;
+  total_nights: number;
+  last_visit: string;
+  first_visit: string;
+  reservations: Array<{
+    id: string;
+    room_number: string;
+    room_name: string;
+    check_in: string;
+    check_out: string;
+    status: string;
+    nights: number;
+  }>;
 }
 
 // Rooms API
@@ -102,4 +123,17 @@ export async function deleteReservation(id: string): Promise<void> {
     method: 'DELETE',
   });
   if (!response.ok) throw new Error('Failed to delete reservation');
+}
+
+export async function fetchReservationById(id: string): Promise<Reservation> {
+  const response = await fetch(`${API_BASE_URL}/api/reservations/${id}`);
+  if (!response.ok) throw new Error('Failed to fetch reservation');
+  return response.json();
+}
+
+// Guests API
+export async function fetchGuests(): Promise<Guest[]> {
+  const response = await fetch(`${API_BASE_URL}/api/guests`);
+  if (!response.ok) throw new Error('Failed to fetch guests');
+  return response.json();
 }
